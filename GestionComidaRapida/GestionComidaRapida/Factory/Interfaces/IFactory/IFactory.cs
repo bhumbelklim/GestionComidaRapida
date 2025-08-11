@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using GestionComidaRapida.Factory.Interfaces.IterfaceIProduct;
 using GestionComidaRapida.Factory.Tipos.Enum;
 
-namespace GestionComidaRapida.Factory.Interfaces.InterfaceProductFactory
+namespace GestionComidaRapida.Factory.Interfaces.IFactory
 {
-    public interface IProductFactory
+    public interface IFactory
     {
-        IProduct Crear();
+        IProduct CrearProducto(ProductType tipo);
+        IProduct CrearProductoGenerico(decimal precioBase);
     }
 }

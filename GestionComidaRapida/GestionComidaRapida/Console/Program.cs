@@ -11,6 +11,11 @@ using GestionComidaRapida.Strategy.TiposDePrecio.PrecioConImpuestos;
 using Microsoft.Extensions.DependencyInjection;
 using GestionComidaRapida.Factory.Interfaces.InterfaceProductFactory;
 using GestionComidaRapida.Strategy.TiposDePrecio.PrecioNormal;
+using GestionComidaRapida.Helpers.ValidationHelpers;
+using GestionComidaRapida.Factory.Interfaces.IFactory;
+using GestionComidaRapida.Factory.Tipos.EmpanadasFactory;
+using GestionComidaRapida.Factory.Tipos.HamburguesaFactory;
+using GestionComidaRapida.Factory.Tipos.PizzaFactory;
 
 public class Program
 {
@@ -19,6 +24,11 @@ public class Program
         var serverProvider = new ServiceCollection();
 
         serverProvider.AddSingleton<List<IProduct>>();
+
+        serverProvider.AddSingleton<PizzaFactory>();
+        serverProvider.AddSingleton<HamburguesaFactory>();
+        serverProvider.AddSingleton<EmpanadaFactory>();
+        serverProvider.AddSingleton<IFactory, FactoryProduct>();
 
         serverProvider.AddSingleton<IOrderService, OrderService>();
         serverProvider.AddSingleton<FactoryProduct>();
@@ -58,6 +68,7 @@ public class Program
             switch (MenuOption)
             {
                 case 1:
+
                     Console.WriteLine("Seleccione productos para agregar:");
                     Console.WriteLine("--HAY DESCUENTO 15% SI LLEVAS DOS PRODUCTOS IGUALES--");
                     Console.WriteLine("1. Hamburguesa");
@@ -71,10 +82,10 @@ public class Program
                         foodOptionInput = Console.ReadLine();
                         if (foodOptionInput == "0") break;
 
-                        if (int.TryParse(foodOptionInput, out int tipoInt) && tipoInt >= 1 && tipoInt <= 3)
+                        if (int.TryParse(foodOptionInput, out int tipoInt) && Enum.IsDefined(typeof(ProductType), tipoInt))
                         {
                             var productType = (ProductType)tipoInt;
-                            var product = provider.GetRequiredService<FactoryProduct>().Crear(productType);
+                            var product = provider.GetRequiredService<FactoryProduct>().CrearProducto(productType);
 
                             OrderService.AddProduct(product);
 
@@ -97,15 +108,8 @@ public class Program
 
                     var productcase2 = OrderService.ObtenerProductos();
 
-                    if (productcase2.Count == 0)
+                    if (ValidationHelpers.ShowErrorIfEmpty(productcase2))
                     {
-                        Console.ForegroundColor= ConsoleColor.Red;
-                        Console.Write("Error. ");
-                        Console.ResetColor();
-                        Console.WriteLine("Agrega productos en case 1");
-                        Console.WriteLine("Presione una tecla para continuar...");
-                        Console.ReadKey();
-                        Console.Clear();
                         break;
                     }
 
